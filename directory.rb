@@ -15,12 +15,12 @@
 ]
 
 def load_students(filename = 'students.csv')
-  file = File.open(filename, 'r')
-  file.readlines.each do |line|
-    name, cohort, country = line.chomp.split(',')
-    students_update(name, cohort, country)
+  File.open(filename, 'r') do |file|
+    file.readlines.each do |line|
+      name, cohort, country = line.chomp.split(',')
+      students_update(name, cohort, country)
+    end
   end
-  file.close
 end
 
 def try_load_students
@@ -36,13 +36,13 @@ def try_load_students
 end
 
 def save_students
-  file = File.open('students.csv', 'w')
-  @students.each do |student|
-    student_data = [student[:name], student[:cohort], student[:country]]
-    csv_line = student_data.join(',')
-    file.puts csv_line
+  File.open('students.csv', 'w') do |file|
+    @students.each do |student|
+      student_data = [student[:name], student[:cohort], student[:country]]
+      csv_line = student_data.join(',')
+      file.puts csv_line
+    end
   end
-  file.close
 end
 
 def interactive_menu
