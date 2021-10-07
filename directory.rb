@@ -35,6 +35,16 @@ def try_load_students
   end
 end
 
+def save_students
+  file = File.open('students.csv', 'w')
+  @students.each do |student|
+    student_data = [student[:name], student[:cohort], student[:country]]
+    csv_line = student_data.join(',')
+    file.puts csv_line
+  end
+  file.close
+end
+
 def interactive_menu
   loop do
     print_menu
@@ -59,28 +69,22 @@ end
 def process(selection)
   case selection
   when '1'
+    puts 'Success!'
     input_students
   when '2'
+    puts 'Success!'
     show_students
   when '3'
+    puts 'Success!'
     save_students
   when '4'
+    puts 'Success!'
     load_students
   when '9'
     exit # this will cause the program to terminate
   else
     puts "I don't know what you meant, try again"
   end
-end
-
-def save_students
-  file = File.open('students.csv', 'w')
-  @students.each do |student|
-    student_data = [student[:name], student[:cohort], student[:country]]
-    csv_line = student_data.join(',')
-    file.puts csv_line
-  end
-  file.close
 end
 
 def input_students
