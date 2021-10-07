@@ -1,10 +1,24 @@
 @students = []
+@cohorts = %w[
+  january
+  february
+  march
+  april
+  may
+  june
+  july
+  august
+  september
+  october
+  november
+  december
+]
 
 def load_students(filename = 'students.csv')
   file = File.open(filename, 'r')
   file.readlines.each do |line|
-    name, cohort = line.chomp.split(',')
-    @students << { name: name, cohort: cohort.to_sym }
+    name, cohort, country = line.chomp.split(',')
+    students_update(name, cohort, country)
   end
   file.close
 end
@@ -45,7 +59,7 @@ end
 def process(selection)
   case selection
   when '1'
-    students = input_students
+    input_students
   when '2'
     show_students
   when '3'
@@ -62,7 +76,7 @@ end
 def save_students
   file = File.open('students.csv', 'w')
   @students.each do |student|
-    student_data = [student[:name], student[:cohort]]
+    student_data = [student[:name], student[:cohort], student[:country]]
     csv_line = student_data.join(',')
     file.puts csv_line
   end
@@ -73,28 +87,71 @@ def input_students
   puts 'Please enter the names of the students'
   puts 'To finish, just hit return twice'
   name = STDIN.gets.chomp
+  puts "Please enter the student's cohort"
+  cohort = check_cohort(STDIN.gets.chomp)
+  puts "Please enter the student's country of origin"
+  country = STDIN.gets.chomp
 
-  while !name.empty?
-    @students << { name: name, cohort: :november }
-    puts "Now we have #{@students.count} students"
+  while !name.empty? && !cohort.empty? && !country.empty?
+    students_update(name, cohort, country)
+    if @students.count == 1
+      puts "Now we have #{@students.count} student"
+    else
+      puts "Now we have #{@students.count} students"
+    end
+    puts 'Please enter the names of the students'
     name = STDIN.gets.chomp
+    puts "Please enter the student's cohort"
+    cohort = STDIN.gets.chomp
+    puts "Please enter the student's country of origin"
+    country = STDIN.gets.chomp
   end
   @students
 end
 
+def check_cohort(input)
+  if @cohorts.include?(input)
+    return input
+  else
+    while true
+      puts 'try again this is not a valid cohort'
+      input = STDIN.gets.chomp
+      return input if @cohorts.include?(input)
+    end
+  end
+end
+
+def students_update(name, cohort, country)
+  @students << { name: name, cohort: cohort.to_sym, country: country }
+end
+
 def print_header
-  puts 'The students of Villains Academy'
-  puts '-------------'
+  puts 'The students of Villains Academy'.center(50)
+  puts '-------------'.center(50)
 end
 
 def print_students_list
-  @students.each do |student|
-    puts "#{student[:name]} (#{student[:cohort]} cohort)"
+  count = 0
+  if @students.length == 0
+    puts 'There are no students'.center(50)
+    exit
+  else
+    while count < @cohorts.length
+      puts "Students in #{@cohorts[count]} cohort".center(50)
+      @students.map do |student|
+        if student[:cohort] == @cohorts[count].to_sym
+          puts "#{student[:name]} (#{student[:cohort]} cohort) from #{student[:country]}"
+                 .center(50)
+        end
+      end
+      count += 1
+    end
   end
 end
 
 def print_footer
-  puts "Overall, we have #{@students.count} great students"
+  puts "Overall, we have #{@students.count} great students".center(50)
 end
 
+try_load_students
 interactive_menu
