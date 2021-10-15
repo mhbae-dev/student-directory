@@ -1,3 +1,4 @@
+require 'csv'
 @students = []
 @cohorts = %w[
   january
@@ -14,19 +15,23 @@
   december
 ]
 
-def load_students(filename = 'students.csv')
-  File.open(filename, 'r') do |file|
-    file.readlines.each do |line|
-      name, cohort, country = line.chomp.split(',')
+def load_students
+  puts 'Enter the name of the file you wish to load'
+  filename = "#{gets.chomp}.csv"
+  if File.exists?(filename)
+    CSV.foreach(filename) do |row|
+      name, cohort, country = row
       students_update(name, cohort, country)
     end
+  else
+    puts "#{filename} could not be found"
   end
 end
 
 def try_load_students
   filename = ARGV.first
   return if filename.nil?
-  if File.exists?(filename)
+  if CSV.exists?(filename)
     load_students(filename)
     puts "Loaded #{@students.count} from #{filename}"
   else
@@ -36,11 +41,11 @@ def try_load_students
 end
 
 def save_students
-  File.open('students.csv', 'w') do |file|
+  puts 'Please enter the name of the save file'
+  filename = "#{gets.chomp}.csv"
+  CSV.open(filename, 'w') do |csv|
     @students.each do |student|
-      student_data = [student[:name], student[:cohort], student[:country]]
-      csv_line = student_data.join(',')
-      file.puts csv_line
+      csv << [student[:name], student[:cohort], student[:country]]
     end
   end
 end
@@ -55,8 +60,8 @@ end
 def print_menu
   puts '1. Input the students'
   puts '2. Show the students'
-  puts '3. Save the list to students.csv'
-  puts '4. Load the list from students.csv'
+  puts '3. Save the list to .csv file'
+  puts '4. Load the list from .csv file'
   puts '9. Exit'
 end
 
@@ -69,16 +74,16 @@ end
 def process(selection)
   case selection
   when '1'
-    puts 'Success!'
+    puts 'Success! Input students'
     input_students
   when '2'
-    puts 'Success!'
+    puts 'Success! Showing student list'
     show_students
   when '3'
-    puts 'Success!'
+    puts 'Success! Saving student list'
     save_students
   when '4'
-    puts 'Success!'
+    puts 'Success! Loading student list'
     load_students
   when '9'
     exit # this will cause the program to terminate
@@ -92,7 +97,7 @@ def input_students
   puts 'To finish, just hit return twice'
   name = STDIN.gets.chomp
   puts "Please enter the student's cohort"
-  cohort = check_cohort(STDIN.gets.chomp)
+  cohort = check_cohort(STDIN.gets.chomp.downcase)
   puts "Please enter the student's country of origin"
   country = STDIN.gets.chomp
 
@@ -119,7 +124,7 @@ def check_cohort(input)
   else
     while true
       puts 'try again this is not a valid cohort'
-      input = STDIN.gets.chomp
+      input = STDIN.gets.chomp.downcase
       return input if @cohorts.include?(input)
     end
   end
